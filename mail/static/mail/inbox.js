@@ -106,7 +106,7 @@ async function view_mail(id){
   }
 
   document.querySelector('#archive').addEventListener('click', () => archive(email.id));
-  document.querySelector('#unarchive').addEventListener('click', () => Unarchive(email.id));
+  document.querySelector('#unarchive').addEventListener('click', () => unarchive(email.id));
 }
 
 async function read_mail(id){
@@ -127,7 +127,7 @@ async function archive(id){
   });
 }
 
-async function Unarchive(id){
+async function unarchive(id){
   const response = await fetch(`/emails/${id}`, {
     method: 'PUT',
     body: JSON.stringify({
