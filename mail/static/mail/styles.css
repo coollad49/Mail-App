@@ -1,3 +1,9 @@
 textarea {
     min-height: 400px;
 }
+
+.email_div{
+    border: 1px solid black;
+    margin-top: 2rem;
+    padding: 2rem;
+}
