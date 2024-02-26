@@ -46,10 +46,10 @@ async function load_mailbox(mailbox) {
     const email_div = document.createElement('div');
     email_div.innerHTML = `<h3 class="">${email.subject}</h3><h5>By ${email.sender} on ${email.timestamp}</h5>`;
     email_div.className = 'email_div';
+    email_div.classList.add('p-3', 'text-primary-emphasis', 'bg-primary-subtle', 'border', 'border-primary-subtle', 'rounded-3', 'mt-3');
     // Change background color if email is read
     if(email.read == true){
-      email_div.style.backgroundColor = 'grey';
-      email_div.style.color = 'white';
+      email_div.classList.add('text-danger-emphasis', 'bg-danger-subtle', 'border-danger-subtle');
     }
     document.querySelector('#emails-view').append(email_div);
     // Add click event to view and mark email as read
@@ -97,16 +97,36 @@ async function view_mail(id){
 
   const response = await fetch(`/emails/${id}`);
   const email = await response.json();
-  document.querySelector('#view-email').innerHTML = `<h2>From: ${email.sender}</h2><hr><h2>To: ${email.recipients}</h2><hr><h3>Subject: ${email.subject}</h3><hr><h3>Message:</h3 <p>${email.body}<br><br>Date: ${email.timestamp}`;
-  if(email.archive){
-    document.querySelector('#view-email').insertAdjacentHTML = ('beforeend', '<button class="btn btn-warning" id="unarchive">Unarchive</button>');
+  document.querySelector('#view-email').innerHTML = `
+  <div class="card mb-2">
+    <div class="card-header">
+        <h5 class="card-title">From: ${email.sender}</h5>
+    </div>
+    <div class="card-body">
+        <h6 class="card-subtitle mb-2 text-muted">To: ${email.recipients.join(", ")}</h6>
+        <p class="card-text text-muted">Subject: ${email.subject}</p>
+        <p class="card-text">${email.body}</p>
+        <p class="card-text"><small class="text-muted">Date: ${email.timestamp}</small></p>
+    </div>
+</div>`;
+  console.log(email.archived);
+  if(email.archived){
+    document.querySelector('#view-email').insertAdjacentHTML('beforeend', '<button class="btn btn-warning float-end" id="unarchive">Unarchive</button>');
+    document.querySelector('#unarchive').addEventListener('click', async function(){
+      await unarchive(email.id);
+      load_mailbox('archive');
+    });
   }
   else{
-    document.querySelector('#view-email').insertAdjacentHTML = ('beforeend', '<button class="btn btn-warning" id="archive">Archive</button>');
+    document.querySelector('#view-email').insertAdjacentHTML('beforeend', '<button class="btn btn-warning float-end" id="archive">Archive</button>');
+    document.querySelector('#archive').addEventListener('click', async function(){
+      await archive(email.id);
+      load_mailbox('inbox');
+    });
   }
 
-  document.querySelector('#archive').addEventListener('click', () => archive(email.id));
-  document.querySelector('#unarchive').addEventListener('click', () => unarchive(email.id));
+  
+  
 }
 
 async function read_mail(id){
@@ -122,7 +142,7 @@ async function archive(id){
   const response = await fetch(`/emails/${id}`, {
     method: 'PUT',
     body: JSON.stringify({
-      archive: true
+      archived: true
     })
   });
 }
@@ -131,7 +151,7 @@ async function unarchive(id){
   const response = await fetch(`/emails/${id}`, {
     method: 'PUT',
     body: JSON.stringify({
-      archive: false
+      archived: false
     })
   });
 }
