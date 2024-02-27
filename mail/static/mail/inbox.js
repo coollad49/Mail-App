@@ -18,16 +18,16 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Function to display the email composition view and hide others
-function compose_email() {
+function compose_email(recipients= '', subject='', body='') {
   // Hide all views except the compose view
   document.querySelector('#emails-view').style.display = 'none';
   document.querySelector('#compose-view').style.display = 'block';
   document.querySelector('#view-email').style.display = 'none';
   
   // Clear out all fields in the compose form
-  document.querySelector('#compose-recipients').value = '';
-  document.querySelector('#compose-subject').value = '';
-  document.querySelector('#compose-body').value = '';
+  document.querySelector('#compose-recipients').value = recipients;
+  document.querySelector('#compose-subject').value = subject;
+  document.querySelector('#compose-body').value = body;
 }
 
 // Function to load emails into the specified mailbox view
@@ -109,7 +109,12 @@ async function view_mail(id){
         <p class="card-text"><small class="text-muted">Date: ${email.timestamp}</small></p>
     </div>
 </div>`;
-  console.log(email.archived);
+// reply button
+  document.querySelector('#view-email').insertAdjacentHTML('beforeend', '<button class="btn btn-success float-start" id="reply">Reply</button>');
+  document.querySelector('#reply').addEventListener('click', ()=>{
+    compose_email(recipients=email.sender, subject=`Re: ${email.subject}`, body=`On ${email.timestamp} ${email.sender} wrote: ${email.body}`);
+  });
+
   if(email.archived){
     document.querySelector('#view-email').insertAdjacentHTML('beforeend', '<button class="btn btn-warning float-end" id="unarchive">Unarchive</button>');
     document.querySelector('#unarchive').addEventListener('click', async function(){
